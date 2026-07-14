@@ -1,0 +1,58 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    match /users/{uid} {
+      allow read, update: if isOwner(uid);
+      // Profile doc is created by useAuth()'s upsertUserProfile() on first sign-in.
+      allow create: if isOwner(uid)
+        && request.resource.data.keys().hasOnly(['displayName', 'email', 'photoURL', 'createdAt', 'lastLoginAt'])
+        && request.resource.data.email is string;
+      allow delete: if false;
+
+      match /chats/{chatId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasOnly(['title', 'createdAt', 'updatedAt', 'lastMessagePreview'])
+          && request.resource.data.title is string;
+        // Only updatedAt/lastMessagePreview may change after creation (title is set once).
+        allow update: if isOwner(uid)
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessagePreview']);
+
+        match /messages/{messageId} {
+          allow read: if isOwner(uid);
+          allow create: if isOwner(uid)
+            && request.resource.data.keys().hasAll(['role', 'content', 'createdAt'])
+            && request.resource.data.role in ['user', 'assistant']
+            && request.resource.data.content is string;
+          // Messages are an immutable log - no edits or deletes.
+          allow update, delete: if false;
+        }
+      }
+
+      match /favorites/{itemId} {
+        allow read, delete: if isOwner(uid);
+        allow create: if isOwner(uid)
+          && request.resource.data.keys().hasAll(['type', 'refId', 'savedAt'])
+          && request.resource.data.type in ['attraction', 'resort', 'restaurant', 'activity'];
+        allow update: if false;
+      }
+    }
+
+    // Curated tourism content: readable by any signed-in user, written only via
+    // the admin ingestion script (service-account access bypasses these rules).
+    match /tourismContent/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+  }
+}
