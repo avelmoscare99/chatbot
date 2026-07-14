@@ -13,7 +13,6 @@ service cloud.firestore {
 
     match /users/{uid} {
       allow read, update: if isOwner(uid);
-      // Profile doc is created by useAuth()'s upsertUserProfile() on first sign-in.
       allow create: if isOwner(uid)
         && request.resource.data.keys().hasOnly(['displayName', 'email', 'photoURL', 'createdAt', 'lastLoginAt'])
         && request.resource.data.email is string;
@@ -24,7 +23,6 @@ service cloud.firestore {
         allow create: if isOwner(uid)
           && request.resource.data.keys().hasOnly(['title', 'createdAt', 'updatedAt', 'lastMessagePreview'])
           && request.resource.data.title is string;
-        // Only updatedAt/lastMessagePreview may change after creation (title is set once).
         allow update: if isOwner(uid)
           && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['updatedAt', 'lastMessagePreview']);
 
@@ -34,7 +32,6 @@ service cloud.firestore {
             && request.resource.data.keys().hasAll(['role', 'content', 'createdAt'])
             && request.resource.data.role in ['user', 'assistant']
             && request.resource.data.content is string;
-          // Messages are an immutable log - no edits or deletes.
           allow update, delete: if false;
         }
       }
@@ -48,8 +45,6 @@ service cloud.firestore {
       }
     }
 
-    // Curated tourism content: readable by any signed-in user, written only via
-    // the admin ingestion script (service-account access bypasses these rules).
     match /tourismContent/{itemId} {
       allow read: if isSignedIn();
       allow write: if false;

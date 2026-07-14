@@ -1,7 +1,3 @@
-// Shared Firestore document shapes. Imported by the Nuxt app (via the `~~` root
-// alias) and by worker/scripts (via relative import) so both sides agree on one
-// source of truth for the data model described in firestore.rules.
-
 export type TourismContentType = 'attraction' | 'resort' | 'restaurant' | 'activity'
 
 export interface TourismContentItem {

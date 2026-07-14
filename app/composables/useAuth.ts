@@ -9,10 +9,6 @@ import {
 } from 'firebase/auth'
 import { doc, serverTimestamp, setDoc } from 'firebase/firestore'
 
-/**
- * Creates/refreshes the users/{uid} profile doc. Safe to call on every
- * sign-in (merge: true) so returning users get lastLoginAt bumped too.
- */
 async function upsertUserProfile(uid: string, data: Record<string, unknown>) {
   const firestore = useFirestore()
   await setDoc(

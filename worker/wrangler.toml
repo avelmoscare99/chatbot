@@ -3,11 +3,8 @@ main = "src/index.ts"
 compatibility_date = "2025-07-15"
 compatibility_flags = ["nodejs_compat"]
 
-# Non-secret config. Secrets (none currently needed - Firebase token verification
-# only needs the public project ID) go via `wrangler secret put <NAME>` instead.
 [vars]
 FIREBASE_PROJECT_ID = "your-firebase-project-id"
-# Comma-separated list of allowed CORS origins (Firebase Hosting domain + localhost for dev).
 ALLOWED_ORIGINS = "http://localhost:3000,https://your-project.web.app,https://your-project.firebaseapp.com"
 
 [ai]
@@ -17,7 +14,6 @@ binding = "AI"
 binding = "VECTORIZE"
 index_name = "samal-tourism"
 
-# Uncomment if/when photos are served through the Worker instead of a public R2 URL.
-# [[r2_buckets]]
-# binding = "MEDIA"
-# bucket_name = "samal-tourism-media"
+[[kv_namespaces]]
+binding = "FIREBASE_JWK_CACHE"
+id = "your-kv-namespace-id"

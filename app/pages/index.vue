@@ -1,6 +1,4 @@
 <script setup lang="ts">
-// Placeholder home page - replaced by the full chat UI in a later phase.
-// Exists now so the auth guard has a signed-in destination to verify against.
 const { currentUser } = useCurrentUser()
 const { signOutUser } = useAuth()
 

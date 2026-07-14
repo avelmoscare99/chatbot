@@ -2,7 +2,6 @@ import { initializeApp } from 'firebase/app'
 import { getAuth, onAuthStateChanged, type User } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-// .client.ts suffix: this must never run during Nuxt's build/prerender pass.
 export default defineNuxtPlugin(() => {
   const config = useRuntimeConfig()
 
@@ -18,8 +17,6 @@ export default defineNuxtPlugin(() => {
   const auth = getAuth(app)
   const firestore = getFirestore(app)
 
-  // Single shared listener for the whole app. useCurrentUser() reads this state
-  // rather than each caller registering its own onAuthStateChanged.
   const currentUser = useState<User | null>('firebase.currentUser', () => null)
   const authReady = useState<boolean>('firebase.authReady', () => false)
 
