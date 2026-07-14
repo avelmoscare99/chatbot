@@ -1,0 +1,20 @@
+{
+  "name": "samal-chatbot-worker",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --remote",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "vectorize:create": "wrangler vectorize create samal-tourism --dimensions=1024 --metric=cosine",
+    "vectorize:create-metadata-index": "wrangler vectorize create-metadata-index samal-tourism --property-name=type --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=category --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=priceTier --type=string"
+  },
+  "dependencies": {
+    "firebase-auth-cloudflare-workers": "^2.0.6"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^5",
+    "typescript": "^5.6.3",
+    "wrangler": "^4.24.0"
+  }
+}
