@@ -57,8 +57,8 @@ async function onSend(text: string) {
       streamingText.value = finalText
     })
 
-    await appendMessage(chatId, 'assistant', finalText)
     streamingText.value = ''
+    await appendMessage(chatId, 'assistant', finalText)
   } catch (err) {
     streamingText.value = `Something went wrong: ${(err as Error).message}`
   } finally {

@@ -7,7 +7,8 @@
     "deploy": "wrangler deploy",
     "typecheck": "tsc --noEmit",
     "vectorize:create": "wrangler vectorize create samal-tourism --dimensions=1024 --metric=cosine",
-    "vectorize:create-metadata-index": "wrangler vectorize create-metadata-index samal-tourism --property-name=type --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=category --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=priceTier --type=string"
+    "vectorize:create-metadata-index": "wrangler vectorize create-metadata-index samal-tourism --property-name=type --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=category --type=string && wrangler vectorize create-metadata-index samal-tourism --property-name=priceTier --type=string",
+    "kv:create": "wrangler kv namespace create FIREBASE_JWK_CACHE"
   },
   "dependencies": {
     "firebase-auth-cloudflare-workers": "^2.0.6"

@@ -5,7 +5,7 @@ compatibility_flags = ["nodejs_compat"]
 account_id = "4eddbb92abbcb10036bff7e0edaa7e3a"
 
 [vars]
-FIREBASE_PROJECT_ID = "your-firebase-project-id"
+FIREBASE_PROJECT_ID = "samalchatbot"
 ALLOWED_ORIGINS = "http://localhost:3000,https://your-project.web.app,https://your-project.firebaseapp.com"
 
 [ai]
@@ -17,4 +17,4 @@ index_name = "samal-tourism"
 
 [[kv_namespaces]]
 binding = "FIREBASE_JWK_CACHE"
-id = "your-kv-namespace-id"
+id = "5f1ae18ab7ef43d79358037b11c164f0"

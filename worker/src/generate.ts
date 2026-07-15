@@ -4,14 +4,8 @@ import type { Env } from './types'
 
 const GENERATION_MODEL = '@cf/meta/llama-3.1-8b-instruct-fp8'
 
-const SYSTEM_PROMPT = `You are the Samal Tourism Chatbot, a helpful guide to Island Garden City of Samal, Philippines.
-Answer ONLY using the CONTEXT provided in the user message - do not use outside knowledge about specific places, prices, or hours.
-If the CONTEXT does not contain enough information to answer, say so plainly instead of guessing.
-Always mention which place(s) your answer is based on by name.
-When asked for an itinerary, format the answer as a day-by-day markdown list.`
-
-function buildContextBlock(places: RetrievedPlace[]): string {
-  return places
+function buildSystemPrompt(places: RetrievedPlace[]): string {
+  const placeNotes = places
     .map((place) => {
       const lines = [`${place.name} (${place.category}, ${place.barangay})`, place.description]
       if (place.priceRange) lines.push(`Price range: ${place.priceRange}`)
@@ -21,6 +15,16 @@ function buildContextBlock(places: RetrievedPlace[]): string {
       return lines.join('\n')
     })
     .join('\n\n')
+
+  return `You are the Samal Tourism Chatbot, a friendly local guide to Island Garden City of Samal, Philippines.
+Here is what you personally know about the places relevant to this conversation:
+
+${placeNotes}
+
+Talk naturally, like a knowledgeable local recommending places to a friend, as if this is just stuff you know - never say phrases like "based on the notes", "according to the information given", "based on the context", or any other reference to where these facts came from.
+Only state prices, hours, or details that appear above - never invent ones that aren't there. If asked something the above doesn't cover, say so honestly and naturally, without mentioning notes or context.
+Mention the specific place name(s) you're talking about.
+When asked for an itinerary, format the answer as a day-by-day markdown list.`
 }
 
 export async function streamAnswer(
@@ -29,15 +33,10 @@ export async function streamAnswer(
   places: RetrievedPlace[],
   history: ChatTurn[]
 ): Promise<ReadableStream> {
-  const contextBlock = buildContextBlock(places)
   const recentHistory = history.slice(-6)
 
   return env.AI.run(GENERATION_MODEL, {
-    messages: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      ...recentHistory,
-      { role: 'user', content: `CONTEXT:\n${contextBlock}\n\nQUESTION: ${message}` }
-    ],
+    messages: [{ role: 'system', content: buildSystemPrompt(places) }, ...recentHistory, { role: 'user', content: message }],
     stream: true
   })
 }

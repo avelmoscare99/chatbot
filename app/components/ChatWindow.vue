@@ -14,7 +14,7 @@ const emit = defineEmits<{
 const scrollContainer = ref<HTMLElement | null>(null)
 
 watch(
-  () => [props.messages.length, props.streamingText],
+  () => [props.messages.length, props.streamingText, props.isSending],
   async () => {
     await nextTick()
     if (scrollContainer.value) {
@@ -32,6 +32,7 @@ watch(
       </p>
       <ChatMessage v-for="message in messages" :key="message.id" :role="message.role" :content="message.content" />
       <ChatMessage v-if="streamingText" role="assistant" :content="streamingText" />
+      <TypingIndicator v-else-if="isSending" />
     </div>
     <ChatInput :disabled="isSending" @send="(text) => emit('send', text)" />
   </div>
