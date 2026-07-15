@@ -1,6 +1,70 @@
 <script setup lang="ts">
 const { currentUser } = useCurrentUser()
 const { signOutUser } = useAuth()
+const { chats, activeChatId, messages, subscribeToChats, subscribeToMessages, createChat, appendMessage } =
+  useChats()
+const { streamAnswer } = useChatStream()
+
+const isSending = ref(false)
+const streamingText = ref('')
+
+let unsubscribeChats: (() => void) | null = null
+let unsubscribeMessages: (() => void) | null = null
+
+onMounted(() => {
+  unsubscribeChats = subscribeToChats()
+})
+
+onBeforeUnmount(() => {
+  unsubscribeChats?.()
+  unsubscribeMessages?.()
+})
+
+function selectChat(chatId: string) {
+  activeChatId.value = chatId
+  unsubscribeMessages?.()
+  unsubscribeMessages = subscribeToMessages(chatId)
+}
+
+function startNewChat() {
+  unsubscribeMessages?.()
+  unsubscribeMessages = null
+  messages.value = []
+  activeChatId.value = null
+}
+
+async function onSend(text: string) {
+  if (isSending.value) return
+  isSending.value = true
+  streamingText.value = ''
+
+  try {
+    let chatId = activeChatId.value
+    if (!chatId) {
+      chatId = await createChat(text.slice(0, 60))
+      activeChatId.value = chatId
+      unsubscribeMessages?.()
+      unsubscribeMessages = subscribeToMessages(chatId)
+    }
+
+    const history = messages.value.map((message) => ({ role: message.role, content: message.content }))
+
+    await appendMessage(chatId, 'user', text)
+
+    let finalText = ''
+    await streamAnswer(text, history, (chunk) => {
+      finalText += chunk
+      streamingText.value = finalText
+    })
+
+    await appendMessage(chatId, 'assistant', finalText)
+    streamingText.value = ''
+  } catch (err) {
+    streamingText.value = `Something went wrong: ${(err as Error).message}`
+  } finally {
+    isSending.value = false
+  }
+}
 
 async function onSignOut() {
   await signOutUser()
@@ -9,16 +73,15 @@ async function onSignOut() {
 </script>
 
 <template>
-  <div class="flex min-h-screen flex-col items-center justify-center gap-4 bg-sky-50 px-4">
-    <p class="text-lg text-slate-700">
-      Signed in as <span class="font-medium">{{ currentUser?.displayName || currentUser?.email }}</span>
-    </p>
-    <button
-      type="button"
-      class="rounded-lg border border-slate-300 px-4 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-50"
-      @click="onSignOut"
-    >
-      Sign out
-    </button>
+  <div class="flex h-screen">
+    <ChatSidebar
+      :chats="chats"
+      :active-chat-id="activeChatId"
+      :user-label="currentUser?.displayName || currentUser?.email || ''"
+      @select="selectChat"
+      @new-chat="startNewChat"
+      @sign-out="onSignOut"
+    />
+    <ChatWindow :messages="messages" :streaming-text="streamingText" :is-sending="isSending" @send="onSend" />
   </div>
 </template>

@@ -45,7 +45,11 @@ async function main() {
         name: item.name,
         category: item.category,
         barangay: item.barangay,
-        priceTier: item.priceTier ?? ''
+        priceTier: item.priceTier ?? '',
+        priceRange: item.priceRange ?? '',
+        hours: item.hours ?? '',
+        tips: item.tips ?? '',
+        description: item.description
       }
     }))
 
