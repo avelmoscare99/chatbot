@@ -2,8 +2,10 @@ import { AuthError, verifyFirebaseToken } from './auth'
 import { corsHeaders, preflightResponse } from './cors'
 import { streamAnswer, textToEventStream } from './generate'
 import { retrievePlaces } from './retrieve'
-import { classifyQuery, type ChatTurn, type Intent } from './router'
+import { classifyQuery, type ChatTurn, type ClassifiedQuery, type Intent } from './router'
 import type { Env } from './types'
+
+const FAQ_FALLBACK_SCORE_THRESHOLD = 0.5
 
 interface ChatRequestBody {
   message?: string
@@ -46,6 +48,13 @@ function eventStreamResponse(stream: ReadableStream, cors: Record<string, string
   })
 }
 
+function topicFilter(classified: ClassifiedQuery): VectorizeVectorMetadataFilter | undefined {
+  if (classified.intent === 'ITINERARY_REQUEST' || classified.topic === 'unknown') {
+    return undefined
+  }
+  return { topic: classified.topic }
+}
+
 async function handleChat(request: Request, env: Env, cors: Record<string, string>): Promise<Response> {
   await verifyFirebaseToken(request, env)
   const body = (await request.json().catch(() => ({}))) as ChatRequestBody
@@ -69,7 +78,15 @@ async function handleChat(request: Request, env: Env, cors: Record<string, strin
   }
 
   const topK = TOP_K_BY_INTENT[classified.intent] ?? 5
-  const places = await retrievePlaces(env, classified.standaloneQuery, { topK })
+  let places = await retrievePlaces(env, classified.standaloneQuery, { topK, filter: topicFilter(classified) })
+
+  const weakMatch = places.length === 0 || places[0].score < FAQ_FALLBACK_SCORE_THRESHOLD
+  if (classified.intent !== 'ITINERARY_REQUEST' && weakMatch) {
+    const faqPlaces = await retrievePlaces(env, classified.standaloneQuery, { topK: 3, filter: { topic: 'faq' } })
+    if (faqPlaces.length > 0 && faqPlaces[0].score >= FAQ_FALLBACK_SCORE_THRESHOLD) {
+      places = faqPlaces
+    }
+  }
 
   if (places.length === 0) {
     return eventStreamResponse(textToEventStream(CANNED_REPLIES.NO_RESULTS), cors)

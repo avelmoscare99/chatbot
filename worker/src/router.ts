@@ -19,6 +19,25 @@ const INTENTS: Intent[] = [
   'OUT_OF_SCOPE'
 ]
 
+export type Topic =
+  | 'touristSpot'
+  | 'restaurant'
+  | 'accommodation'
+  | 'transportation'
+  | 'emergencyContact'
+  | 'faq'
+  | 'unknown'
+
+const TOPICS: Topic[] = [
+  'touristSpot',
+  'restaurant',
+  'accommodation',
+  'transportation',
+  'emergencyContact',
+  'faq',
+  'unknown'
+]
+
 export interface ChatTurn {
   role: 'user' | 'assistant'
   content: string
@@ -26,6 +45,7 @@ export interface ChatTurn {
 
 export interface ClassifiedQuery {
   intent: Intent
+  topic: Topic
   standaloneQuery: string
   placeName: string
 }
@@ -43,8 +63,18 @@ FOLLOW_UP - a short follow-up question that only makes sense in light of the pre
 WEB_SEARCH - asking for something time-sensitive or outside a static tourism database (current prices, weather, news, ferry schedules today)
 OUT_OF_SCOPE - anything unrelated to Samal Island tourism
 
+Also classify which single data topic is most relevant to the request:
+
+touristSpot - attractions, beaches, sandbars, nature parks, wildlife, viewpoints
+restaurant - places to eat, cuisine, food recommendations (e.g. "recommend a seafood restaurant")
+accommodation - resorts, hotels, homestays, where to stay
+transportation - how to get somewhere, ferries, habal-habal, tricycles, fares, schedules (e.g. "how do I get to Dahican Beach?")
+emergencyContact - hotlines, police, hospital, coast guard, emergency numbers (e.g. "what is the emergency hotline?")
+faq - general practical questions not about one specific place (permits, best time to visit, currency, safety tips)
+unknown - not confident, or the request spans multiple topics (e.g. a full itinerary)
+
 Respond with ONLY a JSON object, no other text, in this exact shape:
-{"intent": "<one of the intents above>", "standaloneQuery": "<the user's request rewritten as a standalone search query, resolving any pronouns/references using the conversation history>", "placeName": "<the specific place name mentioned, or empty string if none>"}`
+{"intent": "<one of the intents above>", "topic": "<one of the topics above>", "standaloneQuery": "<the user's request rewritten as a standalone search query, resolving any pronouns/references using the conversation history>", "placeName": "<the specific place name mentioned, or empty string if none>"}`
 
 export async function classifyQuery(env: Env, message: string, history: ChatTurn[]): Promise<ClassifiedQuery> {
   const recentHistory = history.slice(-4)
@@ -64,19 +94,20 @@ export async function classifyQuery(env: Env, message: string, history: ChatTurn
 function parseClassification(raw: string, fallbackQuery: string): ClassifiedQuery {
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) {
-    return { intent: 'TOPIC_SEARCH', standaloneQuery: fallbackQuery, placeName: '' }
+    return { intent: 'TOPIC_SEARCH', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
   }
 
   try {
     const parsed = JSON.parse(match[0])
     const intent = INTENTS.includes(parsed.intent) ? (parsed.intent as Intent) : 'TOPIC_SEARCH'
+    const topic = TOPICS.includes(parsed.topic) ? (parsed.topic as Topic) : 'unknown'
     const standaloneQuery =
       typeof parsed.standaloneQuery === 'string' && parsed.standaloneQuery.trim()
         ? parsed.standaloneQuery
         : fallbackQuery
     const placeName = typeof parsed.placeName === 'string' ? parsed.placeName : ''
-    return { intent, standaloneQuery, placeName }
+    return { intent, topic, standaloneQuery, placeName }
   } catch {
-    return { intent: 'TOPIC_SEARCH', standaloneQuery: fallbackQuery, placeName: '' }
+    return { intent: 'TOPIC_SEARCH', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
   }
 }
