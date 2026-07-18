@@ -39,13 +39,38 @@ service cloud.firestore {
       match /favorites/{itemId} {
         allow read, delete: if isOwner(uid);
         allow create: if isOwner(uid)
-          && request.resource.data.keys().hasAll(['type', 'refId', 'savedAt'])
-          && request.resource.data.type in ['attraction', 'resort', 'restaurant', 'activity'];
+          && request.resource.data.keys().hasAll(['topic', 'refId', 'savedAt'])
+          && request.resource.data.topic in ['touristSpot', 'restaurant', 'accommodation', 'transportation', 'emergencyContact', 'faq'];
         allow update: if false;
       }
     }
 
-    match /tourismContent/{itemId} {
+    match /touristSpots/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /restaurants/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /accommodations/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /transportation/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /emergencyContacts/{itemId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
+    match /faqs/{itemId} {
       allow read: if isSignedIn();
       allow write: if false;
     }
