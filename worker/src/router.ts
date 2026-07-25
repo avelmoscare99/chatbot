@@ -94,12 +94,12 @@ export async function classifyQuery(env: Env, message: string, history: ChatTurn
 function parseClassification(raw: string, fallbackQuery: string): ClassifiedQuery {
   const match = raw.match(/\{[\s\S]*\}/)
   if (!match) {
-    return { intent: 'TOPIC_SEARCH', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
+    return { intent: 'OUT_OF_SCOPE', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
   }
 
   try {
     const parsed = JSON.parse(match[0])
-    const intent = INTENTS.includes(parsed.intent) ? (parsed.intent as Intent) : 'TOPIC_SEARCH'
+    const intent = INTENTS.includes(parsed.intent) ? (parsed.intent as Intent) : 'OUT_OF_SCOPE'
     const topic = TOPICS.includes(parsed.topic) ? (parsed.topic as Topic) : 'unknown'
     const standaloneQuery =
       typeof parsed.standaloneQuery === 'string' && parsed.standaloneQuery.trim()
@@ -108,6 +108,6 @@ function parseClassification(raw: string, fallbackQuery: string): ClassifiedQuer
     const placeName = typeof parsed.placeName === 'string' ? parsed.placeName : ''
     return { intent, topic, standaloneQuery, placeName }
   } catch {
-    return { intent: 'TOPIC_SEARCH', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
+    return { intent: 'OUT_OF_SCOPE', topic: 'unknown', standaloneQuery: fallbackQuery, placeName: '' }
   }
 }
