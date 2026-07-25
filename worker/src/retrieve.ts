@@ -44,6 +44,8 @@ export interface RetrievedAccommodation {
   priceTier: string
   tips: string
   contactNumber: string
+  checkInTime: string
+  checkOutTime: string
 }
 
 export interface RetrievedTransportation {
@@ -67,6 +69,8 @@ export interface RetrievedEmergencyContact {
   officeName: string
   contactNumber: string
   description: string
+  location: string
+  hours: string
 }
 
 export interface RetrievedFaq {
@@ -79,6 +83,50 @@ export interface RetrievedFaq {
   keywords: string
 }
 
+export interface RetrievedSouvenirShop {
+  topic: 'souvenirShop'
+  id: string
+  score: number
+  name: string
+  category: string
+  description: string
+  location: string
+  hours: string
+  contactNumber: string
+  email: string
+  website: string
+  productsSold: string
+}
+
+export interface RetrievedFerryTerminal {
+  topic: 'ferryTerminal'
+  id: string
+  score: number
+  name: string
+  category: string
+  location: string
+  route: string
+  hours: string
+  description: string
+  contactNumber: string
+}
+
+export interface RetrievedBeachResort {
+  topic: 'beachResort'
+  id: string
+  score: number
+  name: string
+  category: string
+  description: string
+  location: string
+  contactNumber: string
+  email: string
+  website: string
+  amenities: string
+  pricingSummary: string
+  logisticsSummary: string
+}
+
 export type RetrievedItem =
   | RetrievedTouristSpot
   | RetrievedRestaurant
@@ -86,6 +134,9 @@ export type RetrievedItem =
   | RetrievedTransportation
   | RetrievedEmergencyContact
   | RetrievedFaq
+  | RetrievedSouvenirShop
+  | RetrievedFerryTerminal
+  | RetrievedBeachResort
 
 export interface RetrieveOptions {
   topK?: number
@@ -140,7 +191,9 @@ function toRetrievedItem(match: VectorizeMatch): RetrievedItem {
         roomRate: m.priceInfo ?? '',
         priceTier: m.priceTier ?? '',
         tips: m.tips ?? '',
-        contactNumber: m.contactNumber ?? ''
+        contactNumber: m.contactNumber ?? '',
+        checkInTime: m.checkInTime ?? '',
+        checkOutTime: m.checkOutTime ?? ''
       }
     case 'transportation':
       return {
@@ -161,7 +214,9 @@ function toRetrievedItem(match: VectorizeMatch): RetrievedItem {
         topic: 'emergencyContact',
         officeName: m.name ?? '',
         contactNumber: m.contactNumber ?? '',
-        description: m.description ?? ''
+        description: m.description ?? '',
+        location: m.location ?? '',
+        hours: m.hours ?? ''
       }
     case 'faq':
       return {
@@ -171,6 +226,47 @@ function toRetrievedItem(match: VectorizeMatch): RetrievedItem {
         question: m.question ?? '',
         answer: m.description ?? '',
         keywords: m.keywords ?? ''
+      }
+    case 'souvenirShop':
+      return {
+        ...base,
+        topic: 'souvenirShop',
+        name: m.name ?? '',
+        category: m.category ?? '',
+        description: m.description ?? '',
+        location: m.location ?? '',
+        hours: m.hours ?? '',
+        contactNumber: m.contactNumber ?? '',
+        email: m.email ?? '',
+        website: m.website ?? '',
+        productsSold: m.productsSold ?? ''
+      }
+    case 'ferryTerminal':
+      return {
+        ...base,
+        topic: 'ferryTerminal',
+        name: m.name ?? '',
+        category: m.category ?? '',
+        location: m.location ?? '',
+        route: m.route ?? '',
+        hours: m.hours ?? '',
+        description: m.description ?? '',
+        contactNumber: m.contactNumber ?? ''
+      }
+    case 'beachResort':
+      return {
+        ...base,
+        topic: 'beachResort',
+        name: m.name ?? '',
+        category: m.category ?? '',
+        description: m.description ?? '',
+        location: m.location ?? '',
+        contactNumber: m.contactNumber ?? '',
+        email: m.email ?? '',
+        website: m.website ?? '',
+        amenities: m.amenities ?? '',
+        pricingSummary: m.pricingSummary ?? '',
+        logisticsSummary: m.logisticsSummary ?? ''
       }
     case 'touristSpot':
     default:

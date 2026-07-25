@@ -7,7 +7,10 @@ const COLLECTION_BY_TOPIC: Record<TourismTopic, string> = {
   accommodation: 'accommodations',
   transportation: 'transportation',
   emergencyContact: 'emergencyContacts',
-  faq: 'faqs'
+  faq: 'faqs',
+  souvenirShop: 'souvenirShops',
+  ferryTerminal: 'ferryTerminals',
+  beachResort: 'beachResorts'
 }
 
 export function useTopicBrowser() {

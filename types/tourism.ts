@@ -7,6 +7,9 @@ export type TourismTopic =
   | 'transportation'
   | 'emergencyContact'
   | 'faq'
+  | 'souvenirShop'
+  | 'ferryTerminal'
+  | 'beachResort'
 
 export interface TouristSpot {
   id: string
@@ -40,6 +43,10 @@ export interface Restaurant {
   imageKey?: string
   lat?: number
   lng?: number
+  email?: string
+  facebookPage?: string
+  status?: string
+  priceRange?: string
   updatedAt?: unknown
 }
 
@@ -57,6 +64,12 @@ export interface Accommodation {
   imageKey?: string
   lat?: number
   lng?: number
+  email?: string
+  website?: string
+  amenities?: string
+  status?: string
+  checkInTime?: string
+  checkOutTime?: string
   updatedAt?: unknown
 }
 
@@ -71,6 +84,8 @@ export interface Transportation {
   schedule?: string
   contactNumber?: string
   tips?: string
+  operatorName?: string
+  travelTime?: string
   updatedAt?: unknown
 }
 
@@ -80,6 +95,10 @@ export interface EmergencyContact {
   officeName: string
   contactNumber: string
   description: string
+  telephone?: string
+  email?: string
+  address?: string
+  operatingHours?: string
   updatedAt?: unknown
 }
 
@@ -90,6 +109,83 @@ export interface Faq {
   question: string
   answer: string
   keywords?: string[]
+  status?: string
+  updatedAt?: unknown
+}
+
+export interface SouvenirShop {
+  id: string
+  topic: 'souvenirShop'
+  name: string
+  category: string
+  description: string
+  location: string
+  contactNumber?: string
+  email?: string
+  facebookPage?: string
+  operatingHours?: string
+  productsSold?: string
+  status?: string
+  updatedAt?: unknown
+}
+
+export interface FerryTerminal {
+  id: string
+  topic: 'ferryTerminal'
+  name: string
+  category: string
+  location: string
+  route?: string
+  operatingHours?: string
+  description: string
+  contactNumber?: string
+  status?: string
+  updatedAt?: unknown
+}
+
+export interface BeachResort {
+  id: string
+  topic: 'beachResort'
+  name: string
+  category: string
+  description: string
+  location: string
+  contactNumber?: string
+  email?: string
+  website?: string
+  dayTourFee?: {
+    under3?: string
+    age4to10?: string
+    adult?: string
+  }
+  overnightFee?: {
+    adult?: string
+    age4to10?: string
+    under3?: string
+  }
+  inclusive?: string
+  cottageRate?: {
+    picnicHut?: string
+    campingTent?: string
+  }
+  roomRate?: {
+    hotelTypeRoom?: string
+    concreteWithAircon?: string
+    nativeRoom?: string
+  }
+  checkInTime?: string
+  checkOutTime?: string
+  amenities?: string
+  rentals?: string
+  boatFare?: string
+  baoBaoFare?: string
+  modeOfTransportation?: string
+  directions?: string
+  lat?: number
+  lng?: number
+  status?: string
+  otherServices?: string
+  otherCharges?: string
   updatedAt?: unknown
 }
 
@@ -100,6 +196,9 @@ export type TourismRecord =
   | Transportation
   | EmergencyContact
   | Faq
+  | SouvenirShop
+  | FerryTerminal
+  | BeachResort
 
 export interface UserProfile {
   displayName: string | null

@@ -26,6 +26,9 @@ export type Topic =
   | 'transportation'
   | 'emergencyContact'
   | 'faq'
+  | 'souvenirShop'
+  | 'ferryTerminal'
+  | 'beachResort'
   | 'unknown'
 
 const TOPICS: Topic[] = [
@@ -35,6 +38,9 @@ const TOPICS: Topic[] = [
   'transportation',
   'emergencyContact',
   'faq',
+  'souvenirShop',
+  'ferryTerminal',
+  'beachResort',
   'unknown'
 ]
 
@@ -71,6 +77,9 @@ accommodation - resorts, hotels, homestays, where to stay
 transportation - how to get somewhere, ferries, habal-habal, tricycles, fares, schedules (e.g. "how do I get to Dahican Beach?")
 emergencyContact - hotlines, police, hospital, coast guard, emergency numbers (e.g. "what is the emergency hotline?")
 faq - general practical questions not about one specific place (permits, best time to visit, currency, safety tips)
+souvenirShop - gift shops, souvenir stores, where to buy handicrafts, keychains, or other Samal souvenirs
+ferryTerminal - specific ferry/barge terminal locations, routes, or operating hours (distinct from a general transportation fare/schedule question)
+beachResort - a beach resort day-tour or overnight stay with entrance fees, cottage/room rates, or resort-specific rentals and boat transfers (distinct from a plain hotel/inn accommodation question)
 unknown - not confident, or the request spans multiple topics (e.g. a full itinerary)
 
 Respond with ONLY a JSON object, no other text, in this exact shape:

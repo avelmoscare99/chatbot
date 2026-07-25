@@ -12,11 +12,27 @@ function chunk<T>(items: T[], size: number): T[][] {
   return out
 }
 
+async function clearCollection(firestore: ReturnType<typeof getAdminFirestore>, collectionName: string) {
+  const snapshot = await firestore.collection(collectionName).get()
+  if (snapshot.empty) return
+
+  for (const batchDocs of chunk(snapshot.docs, BATCH_LIMIT)) {
+    const batch = firestore.batch()
+    for (const doc of batchDocs) {
+      batch.delete(doc.ref)
+    }
+    await batch.commit()
+  }
+  console.log(`Cleared ${snapshot.size} existing documents from "${collectionName}".`)
+}
+
 async function main() {
   const firestore = getAdminFirestore()
   let total = 0
 
   for (const { collection, items } of SEED_COLLECTIONS) {
+    await clearCollection(firestore, collection)
+
     for (const batchItems of chunk(items, BATCH_LIMIT)) {
       const batch = firestore.batch()
       for (const item of batchItems) {

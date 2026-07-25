@@ -25,6 +25,8 @@ function formatItem(item: RetrievedItem): string {
     case 'accommodation': {
       const lines = [`${item.name}, a ${item.type} in ${item.location}`, item.description]
       if (item.roomRate) lines.push(`Room rate: ${item.roomRate}`)
+      if (item.checkInTime) lines.push(`Check-in: ${item.checkInTime}`)
+      if (item.checkOutTime) lines.push(`Check-out: ${item.checkOutTime}`)
       if (item.tips) lines.push(`Tips: ${item.tips}`)
       if (item.contactNumber) lines.push(`Contact: ${item.contactNumber}`)
       return lines.join('\n')
@@ -37,10 +39,38 @@ function formatItem(item: RetrievedItem): string {
       if (item.contactNumber) lines.push(`Contact: ${item.contactNumber}`)
       return lines.join('\n')
     }
-    case 'emergencyContact':
-      return `${item.officeName} — ${item.description}\nContact: ${item.contactNumber}`
+    case 'emergencyContact': {
+      const lines = [`${item.officeName} — ${item.description}`, `Contact: ${item.contactNumber}`]
+      if (item.location) lines.push(`Address: ${item.location}`)
+      if (item.hours) lines.push(`Hours: ${item.hours}`)
+      return lines.join('\n')
+    }
     case 'faq':
       return `Q: ${item.question}\nA: ${item.answer}`
+    case 'souvenirShop': {
+      const lines = [`${item.name}, a ${item.category} in ${item.location}`, item.description]
+      if (item.productsSold) lines.push(`Products sold: ${item.productsSold}`)
+      if (item.hours) lines.push(`Hours: ${item.hours}`)
+      if (item.contactNumber) lines.push(`Contact: ${item.contactNumber}`)
+      if (item.website) lines.push(`Website: ${item.website}`)
+      return lines.join('\n')
+    }
+    case 'ferryTerminal': {
+      const lines = [`${item.name}, a ${item.category} in ${item.location}`, item.description]
+      if (item.route) lines.push(`Route: ${item.route}`)
+      if (item.hours) lines.push(`Hours: ${item.hours}`)
+      if (item.contactNumber) lines.push(`Contact: ${item.contactNumber}`)
+      return lines.join('\n')
+    }
+    case 'beachResort': {
+      const lines = [`${item.name}, a ${item.category} in ${item.location}`, item.description]
+      if (item.pricingSummary) lines.push(`Pricing: ${item.pricingSummary}`)
+      if (item.logisticsSummary) lines.push(`Logistics: ${item.logisticsSummary}`)
+      if (item.amenities) lines.push(`Amenities: ${item.amenities}`)
+      if (item.contactNumber) lines.push(`Contact: ${item.contactNumber}`)
+      if (item.website) lines.push(`Website: ${item.website}`)
+      return lines.join('\n')
+    }
   }
 }
 
