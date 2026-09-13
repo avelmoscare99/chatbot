@@ -53,13 +53,13 @@ async function onSend(text: string) {
     await appendMessage(chatId, 'user', text)
 
     let finalText = ''
-    await streamAnswer(text, history, (chunk) => {
+    const sources = await streamAnswer(text, history, (chunk) => {
       finalText += chunk
       streamingText.value = finalText
     })
 
     streamingText.value = ''
-    await appendMessage(chatId, 'assistant', finalText)
+    await appendMessage(chatId, 'assistant', finalText, sources)
   } catch (err) {
     streamingText.value = `Something went wrong: ${(err as Error).message}`
   } finally {

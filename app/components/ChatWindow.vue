@@ -30,7 +30,15 @@ watch(
       <p v-if="messages.length === 0 && !streamingText" class="text-center text-sm text-slate-400">
         Ask me about Samal Island attractions, resorts, activities, or request an itinerary.
       </p>
-      <ChatMessage v-for="message in messages" :key="message.id" :role="message.role" :content="message.content" />
+      <ChatMessage
+        v-for="message in messages"
+        :key="message.id"
+        :id="message.id"
+        :role="message.role"
+        :content="message.content"
+        :sources="message.sources"
+        :rating="message.rating"
+      />
       <ChatMessage v-if="streamingText" role="assistant" :content="streamingText" />
       <TypingIndicator v-else-if="isSending" />
     </div>

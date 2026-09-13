@@ -1,9 +1,19 @@
+import type { ChatSource } from '~~/types/tourism'
 import type { ChatHistoryTurn } from './useWorkerApi'
 
-async function consumeEventStream(stream: ReadableStream<Uint8Array>, onToken: (text: string) => void): Promise<void> {
+interface StreamEventPayload {
+  response?: string
+  sources?: ChatSource[]
+}
+
+async function consumeEventStream(
+  stream: ReadableStream<Uint8Array>,
+  onToken: (text: string) => void
+): Promise<ChatSource[]> {
   const reader = stream.getReader()
   const decoder = new TextDecoder()
   let buffer = ''
+  let sources: ChatSource[] = []
 
   while (true) {
     const { done, value } = await reader.read()
@@ -20,15 +30,20 @@ async function consumeEventStream(stream: ReadableStream<Uint8Array>, onToken: (
       if (payload === '[DONE]') continue
 
       try {
-        const parsed = JSON.parse(payload) as { response?: string }
+        const parsed = JSON.parse(payload) as StreamEventPayload
         if (parsed.response) {
           onToken(parsed.response)
+        }
+        if (parsed.sources) {
+          sources = parsed.sources
         }
       } catch {
         continue
       }
     }
   }
+
+  return sources
 }
 
 export function useChatStream() {
@@ -38,9 +53,9 @@ export function useChatStream() {
     message: string,
     history: ChatHistoryTurn[],
     onToken: (text: string) => void
-  ): Promise<void> {
+  ): Promise<ChatSource[]> {
     const stream = await streamChat(message, history)
-    await consumeEventStream(stream, onToken)
+    return consumeEventStream(stream, onToken)
   }
 
   return { streamAnswer }

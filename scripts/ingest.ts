@@ -176,7 +176,8 @@ function toMetadata(record: TourismRecord): Record<string, string> {
     pricingSummary: '',
     logisticsSummary: '',
     checkInTime: '',
-    checkOutTime: ''
+    checkOutTime: '',
+    sourceUrl: ''
   }
 
   switch (record.topic) {
@@ -191,7 +192,8 @@ function toMetadata(record: TourismRecord): Record<string, string> {
         priceInfo: record.entranceFee ?? '',
         hours: record.operatingHours ?? '',
         tips: record.tips ?? '',
-        contactNumber: record.contactNumber ?? ''
+        contactNumber: record.contactNumber ?? '',
+        sourceUrl: record.sourceUrl ?? ''
       }
     case 'restaurant':
       return {
@@ -203,7 +205,8 @@ function toMetadata(record: TourismRecord): Record<string, string> {
         priceTier: record.priceTier ?? '',
         hours: record.operatingHours ?? '',
         tips: record.tips ?? '',
-        contactNumber: record.contactNumber ?? ''
+        contactNumber: record.contactNumber ?? '',
+        sourceUrl: record.sourceUrl ?? ''
       }
     case 'accommodation':
       return {
@@ -217,7 +220,8 @@ function toMetadata(record: TourismRecord): Record<string, string> {
         tips: record.tips ?? '',
         contactNumber: record.contactNumber ?? '',
         checkInTime: record.checkInTime ?? '',
-        checkOutTime: record.checkOutTime ?? ''
+        checkOutTime: record.checkOutTime ?? '',
+        sourceUrl: record.sourceUrl ?? ''
       }
     case 'transportation':
       return {
@@ -231,7 +235,8 @@ function toMetadata(record: TourismRecord): Record<string, string> {
         contactNumber: record.contactNumber ?? '',
         origin: record.origin,
         destination: record.destination,
-        transportType: record.transportType
+        transportType: record.transportType,
+        sourceUrl: record.sourceUrl ?? ''
       }
     case 'emergencyContact':
       return {

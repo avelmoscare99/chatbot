@@ -26,6 +26,9 @@ export interface TouristSpot {
   imageKey?: string
   lat?: number
   lng?: number
+  source?: 'manual' | 'scraped'
+  sourceUrl?: string
+  lastScrapedAt?: unknown
   updatedAt?: unknown
 }
 
@@ -47,6 +50,9 @@ export interface Restaurant {
   facebookPage?: string
   status?: string
   priceRange?: string
+  source?: 'manual' | 'scraped'
+  sourceUrl?: string
+  lastScrapedAt?: unknown
   updatedAt?: unknown
 }
 
@@ -70,6 +76,9 @@ export interface Accommodation {
   status?: string
   checkInTime?: string
   checkOutTime?: string
+  source?: 'manual' | 'scraped'
+  sourceUrl?: string
+  lastScrapedAt?: unknown
   updatedAt?: unknown
 }
 
@@ -86,6 +95,9 @@ export interface Transportation {
   tips?: string
   operatorName?: string
   travelTime?: string
+  source?: 'manual' | 'scraped'
+  sourceUrl?: string
+  lastScrapedAt?: unknown
   updatedAt?: unknown
 }
 
@@ -218,12 +230,19 @@ export interface ChatSession {
 
 export type ChatMessageRole = 'user' | 'assistant'
 
+export interface ChatSource {
+  name: string
+  url: string
+}
+
 export interface ChatMessage {
   id: string
   role: ChatMessageRole
   content: string
   createdAt: unknown
-  sources?: string[]
+  sources?: ChatSource[]
+  rating?: 'helpful' | 'not_helpful'
+  ratedAt?: unknown
 }
 
 export interface FavoriteItem {

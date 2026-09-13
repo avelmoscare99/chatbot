@@ -1,3 +1,4 @@
+import type { ChatSource } from '../../types/tourism'
 import type { ChatTurn } from './router'
 import type { RetrievedItem } from './retrieve'
 import type { Env } from './types'
@@ -88,6 +89,35 @@ Mention the specific name(s) you're talking about.
 When asked for an itinerary, format the answer as a day-by-day markdown list.`
 }
 
+function itemUrl(item: RetrievedItem): string {
+  if (item.sourceUrl) return item.sourceUrl
+  if (item.topic === 'souvenirShop' || item.topic === 'beachResort') return item.website
+  return ''
+}
+
+function itemName(item: RetrievedItem): string {
+  switch (item.topic) {
+    case 'transportation':
+      return `${item.origin} to ${item.destination}`
+    case 'emergencyContact':
+      return item.officeName
+    case 'faq':
+      return item.question
+    default:
+      return item.name
+  }
+}
+
+export function collectSources(items: RetrievedItem[]): ChatSource[] {
+  const seen = new Map<string, ChatSource>()
+  for (const item of items) {
+    const url = itemUrl(item)
+    if (!url || seen.has(url)) continue
+    seen.set(url, { name: itemName(item), url })
+  }
+  return [...seen.values()]
+}
+
 export async function streamAnswer(
   env: Env,
   message: string,
@@ -107,6 +137,7 @@ export function textToEventStream(text: string): ReadableStream<Uint8Array> {
   return new ReadableStream({
     start(controller) {
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ response: text })}\n\n`))
+      controller.enqueue(encoder.encode(`data: ${JSON.stringify({ sources: [] })}\n\n`))
       controller.enqueue(encoder.encode('data: [DONE]\n\n'))
       controller.close()
     }

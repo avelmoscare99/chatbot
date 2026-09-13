@@ -1,8 +1,9 @@
 import { AuthError, verifyFirebaseToken } from './auth'
 import { corsHeaders, preflightResponse } from './cors'
-import { streamAnswer, textToEventStream } from './generate'
+import { collectSources, streamAnswer, textToEventStream } from './generate'
 import { retrievePlaces } from './retrieve'
 import { classifyQuery, type ChatTurn, type ClassifiedQuery, type Intent } from './router'
+import { appendSourcesToStream } from './sse'
 import type { Env } from './types'
 
 const FAQ_FALLBACK_SCORE_THRESHOLD = 0.5
@@ -92,8 +93,9 @@ async function handleChat(request: Request, env: Env, cors: Record<string, strin
     return eventStreamResponse(textToEventStream(CANNED_REPLIES.NO_RESULTS), cors)
   }
 
+  const sources = collectSources(places)
   const stream = await streamAnswer(env, message, places, history)
-  return eventStreamResponse(stream, cors)
+  return eventStreamResponse(appendSourcesToStream(stream, sources), cors)
 }
 
 export default {

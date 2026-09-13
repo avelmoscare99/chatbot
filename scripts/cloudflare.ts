@@ -59,3 +59,40 @@ export async function upsertVectors(indexName: string, records: VectorizeRecord[
     throw new Error(`Vectorize upsert failed: ${JSON.stringify(json.errors)}`)
   }
 }
+
+export async function deleteVectors(indexName: string, ids: string[]): Promise<void> {
+  if (ids.length === 0) return
+  const response = await fetch(
+    `${CF_API_BASE}/accounts/${accountId()}/vectorize/v2/indexes/${indexName}/delete_by_ids`,
+    {
+      method: 'POST',
+      headers: cloudflareHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({ ids })
+    }
+  )
+  const json = (await response.json()) as CloudflareResponse<{ mutationId: string }>
+  if (!json.success) {
+    throw new Error(`Vectorize delete failed: ${JSON.stringify(json.errors)}`)
+  }
+}
+
+export async function runTextModel(systemPrompt: string, userPrompt: string): Promise<string> {
+  const response = await fetch(
+    `${CF_API_BASE}/accounts/${accountId()}/ai/run/@cf/meta/llama-3.1-8b-instruct-fp8`,
+    {
+      method: 'POST',
+      headers: cloudflareHeaders({ 'Content-Type': 'application/json' }),
+      body: JSON.stringify({
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ]
+      })
+    }
+  )
+  const json = (await response.json()) as CloudflareResponse<{ response: string }>
+  if (!json.success || !json.result) {
+    throw new Error(`Workers AI text generation request failed: ${JSON.stringify(json.errors)}`)
+  }
+  return json.result.response
+}

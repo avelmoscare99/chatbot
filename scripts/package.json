@@ -5,11 +5,14 @@
   "scripts": {
     "seed": "tsx seed-content.ts",
     "ingest": "tsx ingest.ts",
+    "scrape": "tsx scrapeSamalguide.ts",
+    "prune": "tsx pruneManualRecords.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
-    "firebase-admin": "^13.0.2"
+    "firebase-admin": "^13.0.2",
+    "node-html-parser": "^6.1.13"
   },
   "devDependencies": {
     "@types/node": "^22.10.2",

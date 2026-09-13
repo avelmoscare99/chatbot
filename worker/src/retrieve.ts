@@ -16,6 +16,7 @@ export interface RetrievedTouristSpot {
   hours: string
   tips: string
   contactNumber: string
+  sourceUrl: string
 }
 
 export interface RetrievedRestaurant {
@@ -30,6 +31,7 @@ export interface RetrievedRestaurant {
   tips: string
   contactNumber: string
   priceTier: string
+  sourceUrl: string
 }
 
 export interface RetrievedAccommodation {
@@ -46,6 +48,7 @@ export interface RetrievedAccommodation {
   contactNumber: string
   checkInTime: string
   checkOutTime: string
+  sourceUrl: string
 }
 
 export interface RetrievedTransportation {
@@ -60,6 +63,7 @@ export interface RetrievedTransportation {
   schedule: string
   tips: string
   contactNumber: string
+  sourceUrl: string
 }
 
 export interface RetrievedEmergencyContact {
@@ -71,6 +75,7 @@ export interface RetrievedEmergencyContact {
   description: string
   location: string
   hours: string
+  sourceUrl: string
 }
 
 export interface RetrievedFaq {
@@ -81,6 +86,7 @@ export interface RetrievedFaq {
   question: string
   answer: string
   keywords: string
+  sourceUrl: string
 }
 
 export interface RetrievedSouvenirShop {
@@ -96,6 +102,7 @@ export interface RetrievedSouvenirShop {
   email: string
   website: string
   productsSold: string
+  sourceUrl: string
 }
 
 export interface RetrievedFerryTerminal {
@@ -109,6 +116,7 @@ export interface RetrievedFerryTerminal {
   hours: string
   description: string
   contactNumber: string
+  sourceUrl: string
 }
 
 export interface RetrievedBeachResort {
@@ -125,6 +133,7 @@ export interface RetrievedBeachResort {
   amenities: string
   pricingSummary: string
   logisticsSummary: string
+  sourceUrl: string
 }
 
 export type RetrievedItem =
@@ -164,7 +173,7 @@ export async function retrievePlaces(
 
 function toRetrievedItem(match: VectorizeMatch): RetrievedItem {
   const m = (match.metadata ?? {}) as Record<string, string>
-  const base = { id: match.id, score: match.score }
+  const base = { id: match.id, score: match.score, sourceUrl: m.sourceUrl ?? '' }
 
   switch (m.topic as TourismTopic) {
     case 'restaurant':

@@ -8,7 +8,7 @@ import {
   serverTimestamp,
   updateDoc
 } from 'firebase/firestore'
-import type { ChatMessage, ChatSession } from '~~/types/tourism'
+import type { ChatMessage, ChatSession, ChatSource } from '~~/types/tourism'
 
 export function useChats() {
   const firestore = useFirestore()
@@ -56,15 +56,31 @@ export function useChats() {
     return ref.id
   }
 
-  async function appendMessage(chatId: string, role: 'user' | 'assistant', content: string): Promise<void> {
-    await addDoc(messagesCollection(chatId), {
-      role,
-      content,
-      createdAt: serverTimestamp()
-    })
+  async function appendMessage(
+    chatId: string,
+    role: 'user' | 'assistant',
+    content: string,
+    sources?: ChatSource[]
+  ): Promise<void> {
+    const data: Record<string, unknown> = { role, content, createdAt: serverTimestamp() }
+    if (role === 'assistant' && sources && sources.length > 0) {
+      data.sources = sources
+    }
+    await addDoc(messagesCollection(chatId), data)
     await updateDoc(doc(firestore, 'users', requireUid(), 'chats', chatId), {
       updatedAt: serverTimestamp(),
       lastMessagePreview: content.slice(0, 120)
+    })
+  }
+
+  async function rateMessage(
+    chatId: string,
+    messageId: string,
+    rating: 'helpful' | 'not_helpful' | null
+  ): Promise<void> {
+    await updateDoc(doc(firestore, 'users', requireUid(), 'chats', chatId, 'messages', messageId), {
+      rating,
+      ratedAt: serverTimestamp()
     })
   }
 
@@ -75,6 +91,7 @@ export function useChats() {
     subscribeToChats,
     subscribeToMessages,
     createChat,
-    appendMessage
+    appendMessage,
+    rateMessage
   }
 }
