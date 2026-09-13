@@ -1,6 +1,7 @@
 export interface ChatHistoryTurn {
   role: 'user' | 'assistant'
   content: string
+  rating?: 'helpful' | 'not_helpful' | null
 }
 
 export function useWorkerApi() {

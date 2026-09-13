@@ -47,6 +47,7 @@ const TOPICS: Topic[] = [
 export interface ChatTurn {
   role: 'user' | 'assistant'
   content: string
+  rating?: 'helpful' | 'not_helpful' | null
 }
 
 export interface ClassifiedQuery {

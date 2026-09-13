@@ -75,8 +75,27 @@ function formatItem(item: RetrievedItem): string {
   }
 }
 
-function buildSystemPrompt(items: RetrievedItem[]): string {
+const MAX_REJECTED_ANSWERS = 3
+const MAX_REJECTED_ANSWER_LENGTH = 400
+
+function truncate(text: string, maxLength: number): string {
+  return text.length > maxLength ? `${text.slice(0, maxLength)}...` : text
+}
+
+function collectRejectedAnswers(history: ChatTurn[]): string[] {
+  return history
+    .filter((turn) => turn.role === 'assistant' && turn.rating === 'not_helpful')
+    .slice(-MAX_REJECTED_ANSWERS)
+    .map((turn) => truncate(turn.content, MAX_REJECTED_ANSWER_LENGTH))
+}
+
+function buildSystemPrompt(items: RetrievedItem[], rejectedAnswers: string[]): string {
   const notes = items.map(formatItem).join('\n\n')
+
+  const rejectedSection =
+    rejectedAnswers.length > 0
+      ? `\n\nThe user already marked ${rejectedAnswers.length > 1 ? 'these previous responses' : 'this previous response'} of yours as NOT helpful earlier in this conversation:\n${rejectedAnswers.map((answer) => `- "${answer}"`).join('\n')}\nDo not repeat that wording or approach. Give a genuinely different answer this time - more specific detail from the facts above, a different angle, or a clarifying question - rather than restating the same response.`
+      : ''
 
   return `You are the Samal Tourism Chatbot, a friendly local guide to Island Garden City of Samal, Philippines.
 Here is what you personally know about the places, food spots, stays, transport, contacts, and facts relevant to this conversation:
@@ -86,7 +105,7 @@ ${notes}
 Talk naturally, like a knowledgeable local recommending places to a friend, as if this is just stuff you know - never say phrases like "based on the notes", "according to the information given", "based on the context", or any other reference to where these facts came from.
 Stick strictly to the facts listed above - do not add extra details, tips, prices, hours, or advice that aren't there, even if they sound like common travel knowledge. If asked something the above doesn't cover, say so honestly and naturally, without mentioning notes or context, rather than filling the gap with generic advice.
 Mention the specific name(s) you're talking about.
-When asked for an itinerary, format the answer as a day-by-day markdown list.`
+When asked for an itinerary, format the answer as a day-by-day markdown list.${rejectedSection}`
 }
 
 function itemUrl(item: RetrievedItem): string {
@@ -124,10 +143,15 @@ export async function streamAnswer(
   items: RetrievedItem[],
   history: ChatTurn[]
 ): Promise<ReadableStream> {
-  const recentHistory = history.slice(-6)
+  const recentHistory = history.slice(-6).map(({ role, content }) => ({ role, content }))
+  const rejectedAnswers = collectRejectedAnswers(history)
 
   return env.AI.run(GENERATION_MODEL, {
-    messages: [{ role: 'system', content: buildSystemPrompt(items) }, ...recentHistory, { role: 'user', content: message }],
+    messages: [
+      { role: 'system', content: buildSystemPrompt(items, rejectedAnswers) },
+      ...recentHistory,
+      { role: 'user', content: message }
+    ],
     stream: true
   })
 }

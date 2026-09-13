@@ -47,7 +47,11 @@ async function onSend(text: string) {
       unsubscribeMessages = subscribeToMessages(chatId)
     }
 
-    const history = messages.value.map((message) => ({ role: message.role, content: message.content }))
+    const history = messages.value.map((message) => ({
+      role: message.role,
+      content: message.content,
+      rating: message.rating
+    }))
 
     await appendMessage(chatId, 'user', text)
 
