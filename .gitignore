@@ -27,3 +27,5 @@ worker/dist
 
 scripts/node_modules
 scripts/service-account.json
+
+TECHNICAL_MANUAL.html

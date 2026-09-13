@@ -4,6 +4,15 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
   ssr: false,
+  app: {
+    head: {
+      title: 'Samal Tourism Chatbot',
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+        { rel: 'shortcut icon', href: '/favicon.ico' }
+      ]
+    }
+  },
   css: ['~/assets/css/main.css'],
   vite: {
     plugins: [tailwindcss()]
