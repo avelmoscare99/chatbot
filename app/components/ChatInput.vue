@@ -5,6 +5,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   send: [text: string]
+  menu: []
 }>()
 
 const text = ref('')
@@ -19,6 +20,16 @@ function submit() {
 
 <template>
   <form class="flex items-end gap-2 border-t border-slate-200 bg-white p-3" @submit.prevent="submit">
+    <button
+      type="button"
+      aria-label="Browse by category"
+      class="rounded-lg border border-slate-300 p-2 text-slate-600 transition hover:bg-slate-100"
+      @click="emit('menu')"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+        <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
     <textarea
       v-model="text"
       rows="1"
