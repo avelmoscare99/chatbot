@@ -31,6 +31,25 @@ function fallbackFields(title: string, plainText: string): Record<string, unknow
   return { name: title, description: plainText.slice(0, 500) }
 }
 
+const IDENTITY_FIELD: Record<ScrapableTopic, string> = {
+  touristSpot: 'name',
+  restaurant: 'name',
+  accommodation: 'name',
+  transportation: 'origin'
+}
+
+function isValidExtraction(topic: ScrapableTopic, parsed: unknown): parsed is Record<string, unknown> {
+  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return false
+  const record = parsed as Record<string, unknown>
+  const identity = record[IDENTITY_FIELD[topic]]
+  return (
+    typeof identity === 'string' &&
+    identity.trim().length > 0 &&
+    typeof record.description === 'string' &&
+    record.description.trim().length > 0
+  )
+}
+
 export async function extractFields(
   topic: ScrapableTopic,
   title: string,
@@ -43,7 +62,8 @@ export async function extractFields(
     const raw = await runTextModel(system, user)
     const match = raw.match(/\{[\s\S]*\}/)
     if (!match) return fallbackFields(title, plainText)
-    return JSON.parse(match[0])
+    const parsed = JSON.parse(match[0])
+    return isValidExtraction(topic, parsed) ? parsed : fallbackFields(title, plainText)
   } catch {
     return fallbackFields(title, plainText)
   }
