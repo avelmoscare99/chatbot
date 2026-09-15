@@ -27,8 +27,18 @@ Only include facts explicitly stated in the article. Use "" for any field not me
   return { system, user }
 }
 
-function fallbackFields(title: string, plainText: string): Record<string, unknown> {
-  return { name: title, description: plainText.slice(0, 500) }
+function fallbackFields(topic: ScrapableTopic, title: string, plainText: string): Record<string, unknown> {
+  const description = plainText.slice(0, 500)
+  switch (topic) {
+    case 'touristSpot':
+      return { name: title, category: '', description, location: '' }
+    case 'restaurant':
+      return { name: title, cuisine: '', description, location: '' }
+    case 'accommodation':
+      return { name: title, type: '', description, location: '' }
+    case 'transportation':
+      return { origin: title, destination: '', transportType: '', description }
+  }
 }
 
 const IDENTITY_FIELD: Record<ScrapableTopic, string> = {
@@ -61,10 +71,10 @@ export async function extractFields(
   try {
     const raw = await runTextModel(system, user)
     const match = raw.match(/\{[\s\S]*\}/)
-    if (!match) return fallbackFields(title, plainText)
+    if (!match) return fallbackFields(topic, title, plainText)
     const parsed = JSON.parse(match[0])
-    return isValidExtraction(topic, parsed) ? parsed : fallbackFields(title, plainText)
+    return isValidExtraction(topic, parsed) ? parsed : fallbackFields(topic, title, plainText)
   } catch {
-    return fallbackFields(title, plainText)
+    return fallbackFields(topic, title, plainText)
   }
 }

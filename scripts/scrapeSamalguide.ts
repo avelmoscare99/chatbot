@@ -66,7 +66,10 @@ async function processPost(
   categoryMap: Map<number, string>,
   tagMap: Map<number, WpTerm>,
   firestore: ReturnType<typeof getAdminFirestore>,
-  onResult: (result: 'written' | 'skipped-unchanged' | 'skipped-uncategorized', topic?: ScrapableTopic) => void,
+  onResult: (
+    result: 'written' | 'skipped-unchanged' | 'skipped-uncategorized' | 'skipped-empty',
+    topic?: ScrapableTopic
+  ) => void,
   onWrite: (write: PendingWrite) => void
 ): Promise<void> {
   const topic = resolveTopic(post, categoryMap)
@@ -85,6 +88,11 @@ async function processPost(
   }
 
   const plainText = stripToPlainText(post.content.rendered)
+  if (plainText.trim().length === 0) {
+    onResult('skipped-empty', topic)
+    return
+  }
+
   const tagNames = post.tags
     .map((tagId) => tagMap.get(tagId)?.name)
     .filter((name): name is string => !!name)
@@ -118,7 +126,7 @@ async function main() {
   console.log(`Fetched ${posts.length} posts.`)
 
   const pendingWrites: PendingWrite[] = []
-  const counts = { written: 0, unchanged: 0, uncategorized: 0 }
+  const counts = { written: 0, unchanged: 0, uncategorized: 0, empty: 0 }
   const perTopicWritten: Partial<Record<ScrapableTopic, number>> = {}
 
   await mapWithConcurrency(posts, EXTRACTION_CONCURRENCY, (post) =>
@@ -133,6 +141,8 @@ async function main() {
           if (topic) perTopicWritten[topic] = (perTopicWritten[topic] ?? 0) + 1
         } else if (result === 'skipped-unchanged') {
           counts.unchanged += 1
+        } else if (result === 'skipped-empty') {
+          counts.empty += 1
         } else {
           counts.uncategorized += 1
         }
@@ -151,7 +161,9 @@ async function main() {
 
   console.log(`\nWrote/updated ${counts.written} document(s).`)
   console.log('Per topic:', perTopicWritten)
-  console.log(`Skipped ${counts.unchanged} unchanged post(s), ${counts.uncategorized} uncategorized/unsupported post(s) (e.g. "news").`)
+  console.log(
+    `Skipped ${counts.unchanged} unchanged post(s), ${counts.uncategorized} uncategorized/unsupported post(s) (e.g. "news"), ${counts.empty} post(s) with no extractable text (e.g. dead redirect stubs).`
+  )
   console.log('\nNext: run `pnpm ingest` to embed these into Vectorize.')
 }
 
