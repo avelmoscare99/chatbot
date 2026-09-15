@@ -6,6 +6,7 @@
     "seed": "tsx seed-content.ts",
     "ingest": "tsx ingest.ts",
     "scrape": "tsx scrapeSamalguide.ts",
+    "scrape:turismo": "tsx scrapeSamalTurismo.ts",
     "prune": "tsx pruneManualRecords.ts",
     "typecheck": "tsc --noEmit"
   },
