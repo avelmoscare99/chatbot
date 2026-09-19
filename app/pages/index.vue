@@ -7,6 +7,7 @@ const { streamAnswer } = useChatStream()
 
 const isSending = ref(false)
 const streamingText = ref('')
+const sidebarOpen = ref(false)
 
 let unsubscribeChats: (() => void) | null = null
 let unsubscribeMessages: (() => void) | null = null
@@ -24,6 +25,7 @@ function selectChat(chatId: string) {
   activeChatId.value = chatId
   unsubscribeMessages?.()
   unsubscribeMessages = subscribeToMessages(chatId)
+  sidebarOpen.value = false
 }
 
 function startNewChat() {
@@ -31,6 +33,7 @@ function startNewChat() {
   unsubscribeMessages = null
   messages.value = []
   activeChatId.value = null
+  sidebarOpen.value = false
 }
 
 async function onSend(text: string) {
@@ -77,17 +80,25 @@ async function onSignOut() {
 </script>
 
 <template>
-  <div class="flex h-screen flex-col">
+  <div class="flex h-dvh flex-col">
     <div class="flex flex-1 overflow-hidden">
       <ChatSidebar
         :chats="chats"
         :active-chat-id="activeChatId"
         :user-label="currentUser?.displayName || currentUser?.email || ''"
+        :open="sidebarOpen"
         @select="selectChat"
         @new-chat="startNewChat"
         @sign-out="onSignOut"
+        @close="sidebarOpen = false"
       />
-      <ChatWindow :messages="messages" :streaming-text="streamingText" :is-sending="isSending" @send="onSend" />
+      <ChatWindow
+        :messages="messages"
+        :streaming-text="streamingText"
+        :is-sending="isSending"
+        @send="onSend"
+        @open-sidebar="sidebarOpen = true"
+      />
     </div>
   </div>
 </template>

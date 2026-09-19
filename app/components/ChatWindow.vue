@@ -9,6 +9,7 @@ const props = defineProps<{
 
 const emit = defineEmits<{
   send: [text: string]
+  openSidebar: []
 }>()
 
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -31,7 +32,20 @@ watch(
 </script>
 
 <template>
-  <div class="flex h-full flex-1 flex-col bg-slate-50">
+  <div class="flex h-full min-w-0 flex-1 flex-col bg-slate-50">
+    <div class="flex items-center gap-2 border-b border-slate-200 bg-white p-3 md:hidden">
+      <button
+        type="button"
+        aria-label="Open chat list"
+        class="rounded-lg border border-slate-300 p-2 text-slate-600 transition hover:bg-slate-100"
+        @click="emit('openSidebar')"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+          <path stroke-linecap="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <span class="truncate text-sm font-semibold text-slate-900">Samal Tourism Chatbot</span>
+    </div>
     <div class="relative flex-1 overflow-hidden">
       <div ref="scrollContainer" class="h-full space-y-3 overflow-y-auto p-4">
         <p v-if="messages.length === 0 && !streamingText" class="text-center text-sm text-slate-400">

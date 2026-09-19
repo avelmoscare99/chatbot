@@ -5,24 +5,43 @@ defineProps<{
   chats: ChatSession[]
   activeChatId: string | null
   userLabel: string
+  open: boolean
 }>()
 
 const emit = defineEmits<{
   select: [chatId: string]
   newChat: []
   signOut: []
+  close: []
 }>()
 </script>
 
 <template>
-  <aside class="flex h-full w-64 flex-col border-r border-slate-200 bg-white">
-    <div class="border-b border-slate-200 p-3">
+  <div v-if="open" class="fixed inset-0 z-30 bg-slate-900/40 md:hidden" @click="emit('close')" />
+
+  <aside
+    :class="[
+      'fixed inset-y-0 left-0 z-40 flex w-64 flex-col border-r border-slate-200 bg-white transition-transform duration-200 md:static md:translate-x-0',
+      open ? 'translate-x-0' : '-translate-x-full'
+    ]"
+  >
+    <div class="flex items-center gap-2 border-b border-slate-200 p-3">
       <button
         type="button"
-        class="w-full rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
+        class="flex-1 rounded-lg bg-sky-600 px-3 py-2 text-sm font-medium text-white transition hover:bg-sky-700"
         @click="emit('newChat')"
       >
         New chat
+      </button>
+      <button
+        type="button"
+        aria-label="Close chat list"
+        class="rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
+        @click="emit('close')"
+      >
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="h-5 w-5">
+          <path stroke-linecap="round" d="M6 6l12 12M18 6L6 18" />
+        </svg>
       </button>
     </div>
     <div class="flex-1 overflow-y-auto">

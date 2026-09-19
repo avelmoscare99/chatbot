@@ -9,12 +9,23 @@ const emit = defineEmits<{
 }>()
 
 const text = ref('')
+const textareaRef = ref<HTMLTextAreaElement | null>(null)
+
+const MAX_TEXTAREA_HEIGHT_PX = 160
+
+function resizeTextarea() {
+  const el = textareaRef.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${Math.min(el.scrollHeight, MAX_TEXTAREA_HEIGHT_PX)}px`
+}
 
 function submit() {
   const value = text.value.trim()
   if (!value || props.disabled) return
   emit('send', value)
   text.value = ''
+  nextTick(resizeTextarea)
 }
 </script>
 
@@ -31,10 +42,12 @@ function submit() {
       </svg>
     </button>
     <textarea
+      ref="textareaRef"
       v-model="text"
       rows="1"
-      placeholder="Ask about attractions, resorts, activities, or an itinerary..."
-      class="flex-1 resize-none rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+      placeholder="Ask about Samal Island..."
+      class="max-h-40 flex-1 resize-none overflow-y-auto rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500"
+      @input="resizeTextarea"
       @keydown.enter.exact.prevent="submit"
     />
     <button
